@@ -1,0 +1,227 @@
+{
+  "realm": "openmeet",
+  "enabled": true,
+  "displayName": "OpenMeet",
+  "displayNameHtml": "<strong>OpenMeet</strong>",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "defaultSignatureAlgorithm": "RS256",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Full admin access" },
+      { "name": "member", "description": "Regular member" },
+      { "name": "guest", "description": "Limited guest access" }
+    ]
+  },
+  "groups": [
+    { "name": "admins", "realmRoles": ["admin"] },
+    { "name": "members", "realmRoles": ["member"] },
+    { "name": "guests", "realmRoles": ["guest"] }
+  ],
+  "scopeMappings": [
+    {
+      "client": "openmeet-web",
+      "roles": ["admin", "member", "guest"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "openmeet-web",
+      "name": "OpenMeet Web App",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "openmeet-client-secret",
+      "redirectUris": [
+        "http://localhost:3001/*",
+        "http://168.144.46.228:3001/*",
+        "http://168.144.46.228:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3001",
+        "http://168.144.46.228:3001",
+        "http://168.144.46.228:3000"
+      ],
+      "defaultClientScopes": ["openid", "profile", "email", "roles"],
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "realm_roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "group-membership",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "claim.name": "groups",
+            "full.path": "false",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@openmeet.local",
+      "firstName": "Admin",
+      "lastName": "System",
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["admin"],
+      "groups": ["admins"]
+    },
+    {
+      "username": "commander",
+      "enabled": true,
+      "email": "commander@openmeet.local",
+      "firstName": "Commander",
+      "lastName": "Nguyen",
+      "credentials": [{ "type": "password", "value": "commander123", "temporary": false }],
+      "realmRoles": ["admin"],
+      "groups": ["admins"]
+    },
+    {
+      "username": "operator",
+      "enabled": true,
+      "email": "operator@openmeet.local",
+      "firstName": "Operator",
+      "lastName": "Tran",
+      "credentials": [{ "type": "password", "value": "operator123", "temporary": false }],
+      "realmRoles": ["member"],
+      "groups": ["members"]
+    },
+    {
+      "username": "guest",
+      "enabled": true,
+      "email": "guest@openmeet.local",
+      "firstName": "Guest",
+      "lastName": "User",
+      "credentials": [{ "type": "password", "value": "guest123", "temporary": false }],
+      "realmRoles": ["guest"],
+      "groups": ["guests"]
+    }
+  ],
+  "components": {
+    "org.keycloak.storage.UserStorageProvider": [
+      {
+        "name": "openmeet-ldap",
+        "providerId": "ldap",
+        "config": {
+          "enabled": ["true"],
+          "priority": ["1"],
+          "editMode": ["READ_ONLY"],
+          "syncRegistrations": ["false"],
+          "vendor": ["other"],
+          "usernameLDAPAttribute": ["uid"],
+          "rdnLDAPAttribute": ["uid"],
+          "uuidLDAPAttribute": ["entryUUID"],
+          "userObjectClasses": ["inetOrgPerson"],
+          "connectionUrl": ["ldap://openldap:389"],
+          "usersDn": ["ou=People,dc=openmeet,dc=local"],
+          "authType": ["simple"],
+          "bindDn": ["cn=admin,dc=openmeet,dc=local"],
+          "bindCredential": ["ldap_admin_pass"],
+          "searchScope": ["1"],
+          "useTruststoreSpi": ["ldapsOnly"],
+          "connectionPooling": ["true"],
+          "pagination": ["true"],
+          "batchSizeForSync": ["1000"],
+          "fullSyncPeriod": ["604800"],
+          "changedSyncPeriod": ["86400"],
+          "importEnabled": ["true"],
+          "allowKerberosAuthentication": ["false"]
+        },
+        "subComponents": {
+          "org.keycloak.storage.ldap.mappers.LDAPStorageMapper": [
+            {
+              "name": "username",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": ["uid"],
+                "user.model.attribute": ["username"],
+                "is.mandatory.in.ldap": ["true"],
+                "read.only": ["true"]
+              }
+            },
+            {
+              "name": "email",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": ["mail"],
+                "user.model.attribute": ["email"],
+                "is.mandatory.in.ldap": ["false"],
+                "read.only": ["true"]
+              }
+            },
+            {
+              "name": "first name",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": ["givenName"],
+                "user.model.attribute": ["firstName"],
+                "is.mandatory.in.ldap": ["true"],
+                "read.only": ["true"]
+              }
+            },
+            {
+              "name": "last name",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": ["sn"],
+                "user.model.attribute": ["lastName"],
+                "is.mandatory.in.ldap": ["true"],
+                "read.only": ["true"]
+              }
+            },
+            {
+              "name": "LDAP Groups",
+              "providerId": "group-ldap-mapper",
+              "config": {
+                "groups.dn": ["ou=Groups,dc=openmeet,dc=local"],
+                "group.name.ldap.attribute": ["cn"],
+                "group.object.classes": ["posixGroup"],
+                "membership.ldap.attribute": ["memberUid"],
+                "membership.attribute.type": ["UID"],
+                "membership.user.ldap.attribute": ["uid"],
+                "mode": ["READ_ONLY"],
+                "drop.non.existing.groups.during.sync": ["false"]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "openmeet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted, open-source Google Meet alternative with on-prem AI Assistant. Built for high-secret organizations (military, police, government).",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "dev:server": "npm --workspace apps/server run dev",
+    "dev:agent": "npm --workspace apps/agent run dev",
+    "build": "npm --workspaces --if-present run build",
+    "docker:up": "cd deploy/docker && docker compose up -d",
+    "docker:down": "cd deploy/docker && docker compose down",
+    "docker:logs": "cd deploy/docker && docker compose logs -f"
+  },
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  },
+  "keywords": ["video-conferencing", "self-hosted", "livekit", "ai", "on-prem", "e2ee"],
+  "license": "Apache-2.0"
+}

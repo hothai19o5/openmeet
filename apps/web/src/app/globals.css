@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Reset / Base ─────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-text-primary font-sans text-sm;
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    @apply bg-brand/30 text-text-primary;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand/60 ring-offset-1 ring-offset-background;
+  }
+
+  /* Scrollbar – thin & dark */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-surface-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-text-tertiary; }
+}
+
+/* ── Components ───────────────────────────────── */
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center gap-2 rounded font-medium
+           transition-all duration-100 select-none cursor-pointer
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-sm  { @apply btn px-3 py-1.5 text-xs; }
+  .btn-md  { @apply btn px-4 py-2 text-sm; }
+  .btn-lg  { @apply btn px-5 py-2.5 text-base; }
+
+  .btn-primary {
+    @apply btn-md bg-brand text-white hover:bg-brand-hover active:bg-brand-active;
+  }
+  .btn-secondary {
+    @apply btn-md bg-surface text-text-primary border border-surface-border
+           hover:bg-surface-hover active:bg-surface-active;
+  }
+  .btn-ghost {
+    @apply btn-md bg-transparent text-text-secondary
+           hover:bg-surface hover:text-text-primary;
+  }
+  .btn-danger {
+    @apply btn-md bg-status-error/15 text-status-error
+           hover:bg-status-error/25;
+  }
+  .btn-icon {
+    @apply inline-flex items-center justify-center rounded p-2
+           bg-transparent text-text-secondary hover:bg-surface hover:text-text-primary
+           transition-all duration-100 cursor-pointer;
+  }
+  .btn-icon-active {
+    @apply btn-icon bg-brand/15 text-brand hover:bg-brand/25;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-surface rounded-lg border border-surface-border shadow-card;
+  }
+  .card-hover {
+    @apply card hover:bg-surface-hover hover:border-surface-active transition-colors duration-100;
+  }
+
+  /* Input */
+  .input {
+    @apply w-full rounded bg-background-elevated border border-surface-border
+           text-text-primary placeholder:text-text-tertiary
+           px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand
+           transition-all duration-100;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5
+           rounded-full text-xs font-medium;
+  }
+  .badge-brand   { @apply badge bg-brand/15 text-brand; }
+  .badge-success { @apply badge bg-status-success/15 text-status-success; }
+  .badge-warning { @apply badge bg-status-warning/15 text-status-warning; }
+  .badge-error   { @apply badge bg-status-error/15 text-status-error; }
+
+  /* Separator */
+  .divider { @apply border-t border-surface-border; }
+
+  /* Video tile */
+  .video-tile {
+    @apply relative overflow-hidden rounded-lg bg-background-elevated
+           border border-surface-border;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    @apply flex flex-col h-full bg-background-subtle border-r border-surface-border;
+  }
+
+  /* Nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded text-text-secondary text-sm
+           hover:bg-surface hover:text-text-primary transition-colors duration-100 cursor-pointer;
+  }
+  .nav-item-active {
+    @apply nav-item bg-surface text-text-primary;
+  }
+}
+
+/* ── Utilities ────────────────────────────────── */
+@layer utilities {
+  .animate-in   { animation: fadeIn 0.15s ease both; }
+  .slide-in-up  { animation: slideUp 0.2s ease both; }
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand to-blue-400 bg-clip-text text-transparent;
+  }
+}

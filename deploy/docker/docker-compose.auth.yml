@@ -1,0 +1,116 @@
+# OpenMeet — Auth Stack (Keycloak + OpenLDAP + PostgreSQL)
+# Usage: docker compose -f docker-compose.auth.yml up -d
+
+services:
+  # ──────────────────────────────────────
+  # PostgreSQL for Keycloak persistence
+  # ──────────────────────────────────────
+  postgres-keycloak:
+    image: postgres:16-alpine
+    container_name: openmeet-postgres-kc
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD:-keycloak_db_pass}
+    volumes:
+      - pgdata-kc:/var/lib/postgresql/data
+    networks:
+      - openmeet-auth
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # Keycloak 25 (Quarkus)
+  # ──────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: openmeet-keycloak
+    command: start-dev --import-realm
+    environment:
+      # Admin console
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin}
+      # Database
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:-keycloak_db_pass}
+      # HTTP (behind reverse proxy in prod)
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      # Feature flags
+      KC_FEATURES: preview
+    volumes:
+      - ../../infra/keycloak:/opt/keycloak/data/import:ro
+    ports:
+      - "${KC_PORT:-8080}:8080"
+    depends_on:
+      postgres-keycloak:
+        condition: service_healthy
+    networks:
+      - openmeet-auth
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200\\|UP'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # OpenLDAP (demo directory)
+  # ──────────────────────────────────────
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: openmeet-ldap
+    environment:
+      LDAP_ORGANISATION: "OpenMeet"
+      LDAP_DOMAIN: "openmeet.local"
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:-ldap_admin_pass}
+      LDAP_CONFIG_PASSWORD: ${LDAP_CONFIG_PASSWORD:-ldap_config_pass}
+      LDAP_READONLY_USER: "true"
+      LDAP_READONLY_USER_USERNAME: readonly
+      LDAP_READONLY_USER_PASSWORD: readonly_pass
+      LDAP_TLS: "false"
+      LDAP_SEED_INTERNAL_LDIF_PATH: /container/ldif
+    volumes:
+      - ldapdata:/var/lib/ldap
+      - ldapconfig:/etc/ldap/slapd.d
+      - ../../infra/ldap:/container/ldif:ro
+    ports:
+      - "${LDAP_PORT:-389}:389"
+    networks:
+      - openmeet-auth
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # phpLDAPadmin (optional web UI for LDAP)
+  # ──────────────────────────────────────
+  ldap-admin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: openmeet-ldap-admin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "${LDAP_ADMIN_PORT:-8081}:80"
+    depends_on:
+      - openldap
+    networks:
+      - openmeet-auth
+    restart: unless-stopped
+
+volumes:
+  pgdata-kc:
+  ldapdata:
+  ldapconfig:
+
+networks:
+  openmeet-auth:
+    name: openmeet-auth

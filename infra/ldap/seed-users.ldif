@@ -1,0 +1,117 @@
+# OpenMeet Demo LDAP Seed Data
+# Org: openmeet.local — Military / Government demo users
+# Auto-loaded by osixia/openldap via LDAP_SEED_INTERNAL_LDIF_PATH
+
+dn: ou=People,dc=openmeet,dc=local
+objectClass: organizationalUnit
+ou: People
+description: OpenMeet Users
+
+dn: ou=Groups,dc=openmeet,dc=local
+objectClass: organizationalUnit
+ou: Groups
+description: OpenMeet Groups
+
+# ── Admin user ──
+dn: uid=admin,ou=People,dc=openmeet,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Admin
+sn: System
+givenName: Admin
+uid: admin
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/admin
+mail: admin@openmeet.local
+userPassword: admin123
+loginShell: /bin/bash
+
+# ── Commander ──
+dn: uid=commander,ou=People,dc=openmeet,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Commander Nguyen
+sn: Nguyen
+givenName: Commander
+uid: commander
+uidNumber: 1002
+gidNumber: 1001
+homeDirectory: /home/commander
+mail: commander@openmeet.local
+userPassword: commander123
+loginShell: /bin/bash
+title: Commanding Officer
+
+# ── Operator ──
+dn: uid=operator,ou=People,dc=openmeet,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Operator Tran
+sn: Tran
+givenName: Operator
+uid: operator
+uidNumber: 1003
+gidNumber: 1002
+homeDirectory: /home/operator
+mail: operator@openmeet.local
+userPassword: operator123
+loginShell: /bin/bash
+title: Communications Specialist
+
+# ── Analyst ──
+dn: uid=analyst,ou=People,dc=openmeet,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Analyst Le
+sn: Le
+givenName: Analyst
+uid: analyst
+uidNumber: 1004
+gidNumber: 1002
+homeDirectory: /home/analyst
+mail: analyst@openmeet.local
+userPassword: analyst123
+loginShell: /bin/bash
+title: Intelligence Analyst
+
+# ── Guest (limited access) ──
+dn: uid=guest,ou=People,dc=openmeet,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Guest User
+sn: User
+givenName: Guest
+uid: guest
+uidNumber: 1005
+gidNumber: 1003
+homeDirectory: /home/guest
+mail: guest@openmeet.local
+userPassword: guest123
+loginShell: /bin/bash
+
+# ── Groups ──
+dn: cn=admins,ou=Groups,dc=openmeet,dc=local
+objectClass: posixGroup
+cn: admins
+gidNumber: 1001
+memberUid: admin
+memberUid: commander
+
+dn: cn=members,ou=Groups,dc=openmeet,dc=local
+objectClass: posixGroup
+cn: members
+gidNumber: 1002
+memberUid: operator
+memberUid: analyst
+
+dn: cn=guests,ou=Groups,dc=openmeet,dc=local
+objectClass: posixGroup
+cn: guests
+gidNumber: 1003
+memberUid: guest
