@@ -2,7 +2,7 @@
 
 import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
-import { Video, Lock, Copy, ArrowRight } from 'lucide-react'
+import { Video, Lock, Copy } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, FormEvent } from 'react'
 import { useToast } from '@/components/ui/toast'
@@ -24,15 +24,26 @@ export default function NewRoomPage() {
   const [encrypted, setEncrypted] = useState(false)
   const [creating, setCreating] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setCreating(true)
-    // Phase 1.4: POST /api/rooms → create room in DB + LiveKit
-    // For now: just navigate directly
-    setTimeout(() => {
-      toast(`Room "${name || slug}" created!`, 'success')
-      router.push(`/rooms/${slug}`)
-    }, 600)
+    
+    try {
+      const res = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, isE2EE: encrypted }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create room');
+      
+      const room = await res.json();
+      toast(`Room created!`, 'success')
+      router.push(`/rooms/${room.slug}`)
+    } catch (err) {
+      toast('Could not create room', 'error')
+      setCreating(false)
+    }
   }
 
   const meetingUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/rooms/${slug}`
@@ -41,7 +52,6 @@ export default function NewRoomPage() {
     <AppShell title="Create Room" subtitle="Start a new secure meeting">
       <div className="max-w-lg">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Room name */}
           <div>
             <label className="block text-xs font-medium text-text-secondary mb-1.5">
               Room Name
@@ -56,48 +66,6 @@ export default function NewRoomPage() {
             <p className="text-xs text-text-tertiary mt-1">Optional — slug is used if empty.</p>
           </div>
 
-          {/* Slug */}
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5">
-              Room ID
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                className="input flex-1 font-mono text-xs"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                required
-                maxLength={64}
-              />
-              <button
-                type="button"
-                onClick={() => setSlug(generateSlug())}
-                className="btn-ghost btn-sm text-xs"
-              >
-                Regenerate
-              </button>
-            </div>
-          </div>
-
-          {/* Meeting URL preview */}
-          <div className="card p-4 bg-background-elevated">
-            <p className="text-xs text-text-secondary mb-1.5">Share this link</p>
-            <div className="flex items-center gap-2">
-              <code className="text-xs font-mono text-brand flex-1 truncate">{meetingUrl}</code>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(meetingUrl)
-                  toast('Link copied!', 'success')
-                }}
-                className="btn-icon !p-1"
-              >
-                <Copy className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* E2EE toggle */}
           <div className="flex items-center justify-between p-4 rounded-lg border border-surface-border bg-surface">
             <div className="flex items-center gap-3">
               <Lock className="h-4 w-4 text-brand" />
@@ -121,10 +89,9 @@ export default function NewRoomPage() {
             </button>
           </div>
 
-          {/* Submit */}
           <div className="flex items-center gap-3 pt-2">
             <Button type="submit" variant="primary" loading={creating} icon={<Video />}>
-              Create & Join
+              Create Room
             </Button>
             <Button
               type="button"
