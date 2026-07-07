@@ -8,11 +8,12 @@ import { TopBar } from '@/components/layout/topbar'
 
 type AppShellProps = {
   children: React.ReactNode
+  hideSidebar?: boolean
   title: string
   subtitle?: string
 }
 
-export function AppShell({ children, title, subtitle }: AppShellProps) {
+export function AppShell({ hideSidebar = false, children, title, subtitle }: AppShellProps) {
   const { status } = useSession()
   const router = useRouter()
 
@@ -35,7 +36,7 @@ export function AppShell({ children, title, subtitle }: AppShellProps) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+      {!hideSidebar && <Sidebar />}
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar title={title} subtitle={subtitle} />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
