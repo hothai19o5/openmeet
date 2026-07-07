@@ -1,0 +1,20 @@
+port: 7880
+bind_addresses:
+    - ""
+rtc:
+    tcp_port: 7881
+    port_range_start: 50000
+    port_range_end: 60000
+    use_external_ip: true
+    enable_loopback_candidate: true
+keys:
+    devkey: openmeet-livekit-secret-very-long-string-for-security-12345 # NOTE: Change this in production
+logging:
+    json: false
+    level: info
+turn:
+    enabled: false
+    domain: "openmeet.local"
+    tls_port: 5349
+    udp_port: 3478
+    external_tls: false

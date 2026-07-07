@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  livekit-server:
+    image: livekit/livekit-server:v1.7.0
+    container_name: openmeet-livekit
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    ports:
+      - "7880:7880"   # HTTP/WebSocket
+      - "7881:7881/tcp" # WebRTC TCP
+      - "50000-50050:50000-50050/udp" # WebRTC UDP (RTP/RTCP)
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    environment:
+      LIVEKIT_KEYS: "devkey: openmeet-livekit-secret-very-long-string-for-security-12345"
+    networks:
+      - openmeet-network
+
+  coturn:
+    image: coturn/coturn:latest
+    container_name: openmeet-coturn
+    restart: unless-stopped
+    ports:
+      - "3478:3478/tcp"
+      - "3478:3478/udp"
+      - "5349:5349/tcp"
+      - "5349:5349/udp"
+      - "49152-49200:49152-49200/udp"
+    command: >
+      -n
+      --log-file=stdout
+      --min-port=49152
+      --max-port=49200
+      --realm=openmeet.local
+      --use-auth-secret
+      --static-auth-secret=openmeet-turn-secret-123
+      --listening-port=3478
+      --tls-listening-port=5349
+    networks:
+      - openmeet-network
+
+networks:
+  openmeet-network:
+    name: openmeet-network
+    external: true

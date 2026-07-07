@@ -8,7 +8,7 @@ Trạng thái: **Đang thực hiện**
 
 - [x] **1.1:** Khởi tạo Next.js 15, thiết lập bộ khung UI (Dark Mode, phong cách Linear) chạy trên cổng 3001.
 - [x] **1.2:** Triển khai và tích hợp hệ thống xác thực Keycloak SSO (gắn với OpenLDAP, test bằng tài khoản `analyst`).
-- [ ] **1.3:** Triển khai và cấu hình **LiveKit Server + TURN Server (coturn)** hỗ trợ kết nối peer-to-peer cho video stream.
+- [x] **1.3:** Triển khai và cấu hình **LiveKit Server + TURN Server (coturn)** hỗ trợ kết nối peer-to-peer cho video stream.
 - [ ] **1.4:** Thiết lập Database PostgreSQL và xây dựng API tạo phòng họp (POST `/api/rooms` -> lưu DB + tương tác LiveKit).
 - [ ] **1.5:** Xây dựng trang Phòng họp chi tiết (Routing `/rooms/[slug]`) và tích hợp LiveKit Video/Audio Components.
 - [ ] **1.6:** Xử lý hiển thị trạng thái người tham gia trong phòng (Joined, Left, Muted, Unmuted).
