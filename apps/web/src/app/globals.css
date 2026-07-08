@@ -129,3 +129,35 @@
     @apply bg-gradient-to-r from-brand to-blue-400 bg-clip-text text-transparent;
   }
 }
+
+/* LiveKit Custom Overrides */
+.lk-chat-override .lk-chat {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: 0;
+  height: 100%;
+}
+.lk-chat-override .lk-chat-messages {
+  background-color: var(--color-background);
+  padding: 1rem;
+}
+.lk-chat-override .lk-chat-entry {
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-surface-border);
+}
+.lk-chat-override .lk-chat-entry input {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-surface-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+.lk-chat-override .lk-chat-entry button {
+  background-color: var(--color-brand);
+  color: #000;
+  border-radius: 0.375rem;
+}
+.lk-chat-override .lk-chat-message-header { color: var(--color-text-secondary); }
+.lk-chat-override .lk-chat-message-body { color: var(--color-text-primary); }
+

@@ -2,13 +2,12 @@
 
 import { AppShell } from '@/components/layout/app-shell'
 import {
-  LiveKitRoom,
-  VideoConference,
-  RoomAudioRenderer,
+  LiveKitRoom
 } from '@livekit/components-react'
 import '@livekit/components-styles'
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { CustomRoomUI } from './CustomRoomUI'
 
 export default function RoomClient({ room, user }: { room: any; user: any }) {
   const [token, setToken] = useState('')
@@ -52,9 +51,7 @@ export default function RoomClient({ room, user }: { room: any; user: any }) {
           data-lk-theme="default"
           style={{ height: '100%' }}
         >
-          {/* The VideoConference component provides the default UI layout */}
-          <VideoConference />
-          <RoomAudioRenderer />
+          <CustomRoomUI />
         </LiveKitRoom>
       </div>
     </AppShell>

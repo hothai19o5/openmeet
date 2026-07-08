@@ -11,10 +11,10 @@ Trạng thái: **Đã hoàn thành (1.1–1.5) — các tính năng mở rộng 
 - [x] **1.3:** Triển khai và cấu hình **LiveKit Server + TURN Server (coturn)** hỗ trợ kết nối peer-to-peer cho video stream.
 - [x] **1.4:** Thiết lập Database PostgreSQL và xây dựng API tạo phòng họp (POST `/api/rooms` -> lưu DB + tương tác LiveKit).
 - [x] **1.5:** Xây dựng trang Phòng họp chi tiết (Routing `/rooms/[slug]`) và tích hợp LiveKit Video/Audio Components.
-- [ ] **1.6:** Xử lý hiển thị trạng thái người tham gia trong phòng (Joined, Left, Muted, Unmuted).
-- [ ] **1.7:** Phát triển tính năng In-room Text Chat (Nhắn tin văn bản trong phòng họp).
-- [ ] **1.8:** Tích hợp tính năng Chia sẻ màn hình (Screen sharing).
-- [ ] **1.9:** Tối ưu hóa UI/UX Layout phòng họp (Grid layout cho nhiều người, Speaker view).
+- [x] **1.6:** Xử lý hiển thị trạng thái người tham gia trong phòng (Joined, Left, Muted, Unmuted) thông qua Toast notification custom hooks.
+- [x] **1.7:** Phát triển tính năng In-room Text Chat (Nhắn tin văn bản trong phòng họp) qua custom Chat panel.
+- [x] **1.8:** Tích hợp tính năng Chia sẻ màn hình (Screen sharing) và ControlBar.
+- [x] **1.9:** Tối ưu hóa UI/UX Layout phòng họp (Grid layout cho nhiều người, Focus Layout cho screen share, custom styling).
 - [ ] **1.10:** Kiểm thử end-to-end toàn bộ tính năng Phase 1, review code và fix bug.
 
 ## Phase 2: AI Integration (Python AI Agent — Port-Adapter Architecture)
