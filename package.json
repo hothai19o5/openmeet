@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "description": "Self-hosted, open-source Google Meet alternative with on-prem AI Assistant. Built for high-secret organizations (military, police, government).",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev:web": "npm --workspace apps/web run dev",
     "dev:server": "npm --workspace apps/server run dev",
@@ -17,6 +20,16 @@
     "node": ">=22",
     "npm": ">=10"
   },
-  "keywords": ["video-conferencing", "self-hosted", "livekit", "ai", "on-prem", "e2ee"],
-  "license": "Apache-2.0"
+  "keywords": [
+    "video-conferencing",
+    "self-hosted",
+    "livekit",
+    "ai",
+    "on-prem",
+    "e2ee"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "puppeteer": "^24.43.1"
+  }
 }

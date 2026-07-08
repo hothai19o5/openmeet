@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  openmeet-agent:
+    build:
+      context: ../../apps/agent
+      dockerfile: Dockerfile
+    container_name: openmeet-agent
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../../apps/agent/.env
+    networks:
+      - openmeet-network
+    # Nếu dùng local Whisper, cần tăng shared memory cho model load
+    shm_size: '512m'
+    # Giới hạn tài nguyên cho VPS 2GB
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+
+networks:
+  openmeet-network:
+    name: openmeet-network
+    external: true
