@@ -1,6 +1,12 @@
 """
-Local Whisper STT Adapter
-Sử dụng faster-whisper (CTranslate2 backend) — nhẹ hơn openai-whisper, chạy CPU/GPU.
+Local Whisper STT Adapter — Option A
+Sử dụng faster-whisper (CTranslate2 backend) — nhẹ, chạy CPU, không cần API key.
+
+Đặc điểm:
+- Không có speaker diarization (speaker=None)
+- Segment-level timestamps (không word-level)
+- VAD filter built-in
+- RAM: ~500MB (base model), phù hợp VPS 2GB
 
 Cài đặt: pip install faster-whisper
 """
@@ -11,7 +17,7 @@ import tempfile
 import asyncio
 from typing import AsyncIterator
 
-from ports.stt_port import STTPort, TranscriptionResult
+from ports.stt_port import STTPort, TranscriptionResult, TranscriptionSegment
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +26,8 @@ class LocalWhisperAdapter(STTPort):
     """
     Adapter thực thi STTPort bằng faster-whisper chạy local.
     Không cần API key, không cần Internet. Phù hợp máy yếu (dùng model tiny/base).
+
+    supports_diarization = False — không phân biệt speaker.
     """
 
     def __init__(self, model_size: str = "base", device: str = "cpu"):
@@ -29,19 +37,18 @@ class LocalWhisperAdapter(STTPort):
         self._lock = asyncio.Lock()
 
     def _ensure_model(self):
-        """Lazy load model lần đầu gọi (tránh loadMemory khi chưa cần)."""
+        """Lazy load model lần đầu gọi (tránh load memory khi chưa cần)."""
         if self._model is None:
             from faster_whisper import WhisperModel
-            logger.info(f"Loading Whisper model '{self.model_size}' on {self.device}...")
+            logger.info(f"Loading faster-whisper model '{self.model_size}' on {self.device}...")
             self._model = WhisperModel(self.model_size, device=self.device, compute_type="int8")
-            logger.info("Whisper model loaded successfully.")
+            logger.info("faster-whisper model loaded successfully.")
         return self._model
 
     async def transcribe(
         self, audio_data: bytes, *, language: str = "vi", sample_rate: int = 16000
     ) -> TranscriptionResult:
-        """Chuyển đổi audio bytes → text bằng local Whisper."""
-        # faster-whisper đồng bộ → chạy executor để không block event loop
+        """Chuyển đổi audio bytes → text bằng local faster-whisper."""
         loop = asyncio.get_event_loop()
 
         def _do_transcribe():
@@ -55,12 +62,29 @@ class LocalWhisperAdapter(STTPort):
                     beam_size=1,
                     vad_filter=True,
                 )
-                text = " ".join(seg.text for seg in segments)
+                # Convert generator → list (tránh file bị xoá trước khi iterate)
+                seg_list = list(segments)
+
+                full_text = " ".join(seg.text.strip() for seg in seg_list)
+
+                # Build TranscriptionSegment list (không có speaker)
+                ts_segments = [
+                    TranscriptionSegment(
+                        text=seg.text.strip(),
+                        speaker=None,          # faster-whisper không có diarization
+                        start_time=seg.start,
+                        end_time=seg.end,
+                        confidence=None,
+                    )
+                    for seg in seg_list
+                ]
+
                 return TranscriptionResult(
-                    text=text.strip(),
+                    text=full_text.strip(),
                     language=info.language,
                     confidence=None,
                     is_final=True,
+                    segments=ts_segments,
                 )
 
         async with self._lock:
@@ -72,7 +96,6 @@ class LocalWhisperAdapter(STTPort):
         """
         Streaming: gom audio chunks thành buffer, transcribe theo cửa sổ (~3 giây).
         """
-        import io
         buffer = bytearray()
         segment_id = 0
         # ~3 giây audio ở 16kHz, 16-bit = ~96000 bytes
@@ -101,4 +124,8 @@ class LocalWhisperAdapter(STTPort):
         if self._model is not None:
             del self._model
             self._model = None
-            logger.info("Whisper model unloaded.")
+            logger.info("faster-whisper model unloaded.")
+
+    @property
+    def supports_diarization(self) -> bool:
+        return False

@@ -14,9 +14,17 @@ class AgentConfig:
     stt_provider: str = "local"
     llm_provider: str = "openai"
 
-    # STT: Local Whisper
+    # STT: Local Whisper (Option A — faster-whisper, no diarization)
     whisper_model: str = "base"
     whisper_device: str = "cpu"
+
+    # STT: WhisperX (Option C — full diarization + word alignment)
+    whisperx_model: str = "large-v3"
+    whisperx_device: str = "cuda"
+    whisperx_compute_type: str = ""
+    hf_token: str = ""
+    whisperx_min_speakers: int | None = None
+    whisperx_max_speakers: int | None = None
 
     # STT: OpenAI-compatible
     openai_stt_api_key: str = ""
@@ -45,6 +53,12 @@ class AgentConfig:
             llm_provider=os.getenv("LLM_PROVIDER", "openai"),
             whisper_model=os.getenv("WHISPER_MODEL", "base"),
             whisper_device=os.getenv("WHISPER_DEVICE", "cpu"),
+            whisperx_model=os.getenv("WHISPERX_MODEL", "large-v3"),
+            whisperx_device=os.getenv("WHISPERX_DEVICE", "cuda"),
+            whisperx_compute_type=os.getenv("WHISPERX_COMPUTE_TYPE", ""),
+            hf_token=os.getenv("HF_TOKEN", os.getenv("HUGGINGFACE_TOKEN", "")),
+            whisperx_min_speakers=int(os.getenv("WHISPERX_MIN_SPEAKERS", "0")) or None,
+            whisperx_max_speakers=int(os.getenv("WHISPERX_MAX_SPEAKERS", "0")) or None,
             openai_stt_api_key=os.getenv("OPENAI_STT_API_KEY", ""),
             openai_stt_base_url=os.getenv("OPENAI_STT_BASE_URL", "https://api.openai.com/v1"),
             openai_stt_model=os.getenv("OPENAI_STT_MODEL", "whisper-1"),

@@ -6,8 +6,19 @@ pydantic>=2.0.0
 python-multipart>=0.0.9
 websockets>=12.0
 
-# Local STT (optional — chỉ cần khi STT_PROVIDER=local)
+# === STT Option A: Local Whisper (faster-whisper, CPU, no diarization) ===
+# pip install faster-whisper
 faster-whisper>=1.0.0
 
-# LiveKit Python SDK (optional — chỉ cần khi tích hợp real-time audio)
+# === STT Option C: WhisperX + pyannote 3.1 (GPU, full diarization) ===
+# Cài riêng vì torch phụ thuộc CUDA/CPU:
+#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+#   pip install whisperx pyannote.audio
+# Chỉ uncomment khi VPS có GPU + đủ RAM (>=4GB)
+# whisperx>=3.1.0
+# pyannote.audio>=3.1.0
+# torch>=2.1.0
+# torchaudio>=2.1.0
+
+# === LiveKit Python SDK (optional — chỉ cần khi tích hợp real-time audio) ===
 livekit>=0.12.0

@@ -13,10 +13,17 @@ logger = logging.getLogger(__name__)
 # System prompt mặc định cho tóm tắt cuộc họp
 DEFAULT_SYSTEM_PROMPT = """Bạn là trợ lý AI chuyên tóm tắt cuộc họp.
 Hãy tóm tắt nội dung cuộc họp một cách súc tích, rõ ràng.
-Bao gồm:
-1. Các điểm chính đã thảo luận
-2. Quyết định đã đưa ra
-3. Công việc cần làm (action items)
+
+Nếu transcript có speaker tags (SPEAKER_00, SPEAKER_01, ...), hãy:
+- Gán action items cho đúng speaker
+- Phân biệt ý kiến của từng người tham gia
+- Liệt kê người tham gia ở đầu bản tóm tắt
+
+Format đầu ra:
+1. **Người tham gia**: Danh sách speaker (nếu có)
+2. **Điểm chính**: Các vấn đề đã thảo luận
+3. **Quyết định**: Các quyết định đã thống nhất
+4. **Action items**: Việc cần làm + người phụ trách (nếu có speaker info)
 
 Trả lời bằng tiếng Việt."""
 
@@ -24,6 +31,11 @@ Trả lời bằng tiếng Việt."""
 class SummarizeRequest(BaseModel):
     """Request body cho endpoint /summarize."""
     text: str = Field(..., description="Văn bản cần tóm tắt (transcript cuộc họp)")
+    # Optional: structured segments (nếu client có diarization data)
+    segments: list[dict] | None = Field(
+        default=None,
+        description="Structured transcript: [{\"text\": \"...\", \"speaker\": \"SPEAKER_00\", \"start_time\": 1.2, \"end_time\": 3.5}]"
+    )
     system_prompt: str = Field(default=DEFAULT_SYSTEM_PROMPT, description="System prompt tùy chỉnh")
     temperature: float = Field(default=0.3, ge=0.0, le=1.0, description="Độ ngẫu nhiên")
     max_tokens: int = Field(default=1024, ge=100, le=4096, description="Số token tối đa")
@@ -43,8 +55,18 @@ async def summarize(request: Request, body: SummarizeRequest):
     """
     llm = request.app.state.llm
 
-    # Tạo user prompt
-    prompt = f"Hãy tóm tắt nội dung sau:\n\n{body.text}"
+    # Build prompt: nếu client gửi structured segments, format với speaker tags
+    if body.segments:
+        lines = []
+        for seg in body.segments:
+            speaker_tag = f"[{seg.get('speaker', '')}]" if seg.get("speaker") else ""
+            time_tag = f"[{seg.get('start_time', 0):.1f}-{seg.get('end_time', 0):.1f}s]"
+            lines.append(f"{time_tag} {speaker_tag} {seg.get('text', '')}".strip())
+        transcript_text = "\n".join(lines)
+    else:
+        transcript_text = body.text
+
+    prompt = f"Hãy tóm tắt nội dung sau:\n\n{transcript_text}"
 
     result = await llm.complete(
         prompt=prompt,

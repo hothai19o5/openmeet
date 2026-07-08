@@ -21,9 +21,9 @@ Trạng thái: **Đã hoàn thành (1.1–1.5) — các tính năng mở rộng 
 Trạng thái: **Đang thực hiện**
 
 - [x] **2.1:** Khởi tạo service Python AI Agent (FastAPI) tại `apps/agent/` với kiến trúc Port-Adapter (hexagonal).
-- [x] **2.2:** Xây dựng STT Port + Adapter (Local Whisper via `faster-whisper` + OpenAI-compatible API + Groq). Switch qua `STT_PROVIDER=local|openai|groq`.
+- [x] **2.2:** Xây dựng STT Port + 3 Adapter: (A) `faster-whisper` CPU, (B) OpenAI/Groq API, (C) `whisperx` + `pyannote 3.1` diarization + word alignment. Switch qua `STT_PROVIDER=local|whisperx|openai|groq`. Nâng cấp `STTPort` interface: thêm `speaker`, `start_time/end_time`, `segments` list.
 - [x] **2.3:** Xây dựng LLM Port + Adapter (Local Ollama + OpenAI-compatible API + Groq). Switch qua `LLM_PROVIDER=local|openai|groq`.
-- [x] **2.4:** API endpoints: `POST /api/transcribe` (batch), `WS /api/transcribe/stream` (real-time), `POST /api/summarize` (LLM tóm tắt), `GET /api/health`.
+- [x] **2.4:** API endpoints: `POST /api/transcribe` (batch, trả speaker + timestamps), `WS /api/transcribe/stream` (real-time), `POST /api/summarize` (LLM tóm tắt — hỗ trợ structured segments với speaker tags), `GET /api/health`.
 - [x] **2.5:** LiveKit Python SDK bridge — kết nối room, nhận audio track, pipe sang STT adapter (`livekit_bridge.py`).
 - [x] **2.6:** Dockerfile + docker-compose cho agent service (port 8000, resource-limited cho VPS 2GB).
 - [ ] **2.7:** Đồng bộ hóa dữ liệu từ Agent trả về giao diện chat của người dùng (Live transcripts/summaries qua WebSocket).
